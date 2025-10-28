@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Птицы Москвы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f8ff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sky-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
+            z-index: -2;
+        }
+        
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.8) 5%, transparent 10%),
+                radial-gradient(circle at 70% 20%, rgba(255,255,255,0.7) 7%, transparent 12%),
+                radial-gradient(circle at 40% 70%, rgba(255,255,255,0.6) 8%, transparent 13%),
+                radial-gradient(circle at 80% 60%, rgba(255,255,255,0.5) 6%, transparent 11%);
+            z-index: -1;
+            animation: cloudsMove 30s infinite linear;
+        }
+        
+        @keyframes cloudsMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 1000px 0; }
+        }
+        
+        .header-content {
+            text-align: center;
+            color: #2c3e50;
+            z-index: 2;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 90%;
+        }
+        
+        .header-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .header-content p {
+            font-size: 1.2rem;
+            color: #34495e;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #2c3e50;
+            font-size: 2rem;
+            position: relative;
+        }
+        
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            background: #3498db;
+            margin: 10px auto;
+        }
+        
+        .birds-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+        
+        .bird-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .bird-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .bird-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+            transition: transform 0.5s ease;
+        }
+        
+        .bird-card:hover .bird-image {
+            transform: scale(1.05);
+        }
+        
+        .bird-info {
+            padding: 15px;
+        }
+        
+        .bird-name {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .bird-description {
+            color: #7f8c8d;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+        
+        .articles-section {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+        
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .article-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-3px);
+            background: #f0f7ff;
+        }
+        
+        .article-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .article-excerpt {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .read-more {
+            display: inline-block;
+            margin-top: 10px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .read-more:hover {
+            text-decoration: underline;
+        }
+        
+        /* Стили для модальных окон */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            position: relative;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+        }
+        
+        .image-modal-content {
+            background-color: transparent;
+            margin: 2% auto;
+            padding: 0;
+            width: 90%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #7f8c8d;
+            transition: color 0.3s;
+            z-index: 1001;
+        }
+        
+        .image-close-btn {
+            color: white;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-btn:hover {
+            color: #e74c3c;
+        }
+        
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            padding-right: 30px;
+        }
+        
+        .modal-body {
+            line-height: 1.7;
+            color: #555;
+        }
+        
+        .modal-body p {
+            margin-bottom: 15px;
+        }
+        
+        .large-image {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .image-caption {
+            margin-top: 15px;
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+        
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                height: 250px;
+            }
+            
+            .header-content h1 {
+                font-size: 2rem;
+            }
+            
+            .header-content p {
+                font-size: 1rem;
+            }
+            
+            .birds-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .modal-content {
+                margin: 10% auto;
+                padding: 20px;
+                width: 95%;
+            }
+            
+            .image-modal-content {
+                margin: 5% auto;
+                width: 95%;
+            }
+            
+            .large-image {
+                max-height: 70vh;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-content {
+                padding: 15px 20px;
+            }
+            
+            .header-content h1 {
+                font-size: 1.7rem;
+            }
+            
+            .section-title {
+                font-size: 1.6rem;
+            }
+            
+            .modal-title {
+                font-size: 1.5rem;
+            }
+            
+            .image-caption {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="sky-background"></div>
+        <div class="clouds"></div>
+        <div class="header-content">
+            <h1>Птицы Москвы</h1>
+            <p>Изучаем разнообразие пернатых обитателей столицы</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <h2 class="section-title">Популярные виды птиц Москвы</h2>
+        
+        <div class="birds-grid">
+            <!-- Карточка 1 -->
+            <div class="bird-card" onclick="openBirdImage(0)">
+                <img src="sen.jpg" alt="Синица" class="bird-image">
+                <div class="bird-info">
+                    <h3 class="bird-name">Большая синица</h3>
+                    <p class="bird-description">Одна из самых узнаваемых птиц Москвы. Обитает в парках, садах и лесопарковых зонах. Питается насекомыми, семенами и ягодами.</p>
+                </div>
+            </div>
+            
+            <!-- Карточка 2 -->
+            <div class="bird-card" onclick="openBirdImage(1)">
+                <img src="vorob.jpg" alt="Воробей" class="bird-image">
+                <div class="bird-info">
+                    <h3 class="bird-name">Домовый воробей</h3>
+                    <p class="bird-description">Самый распространенный вид воробьев в городе. Гнездится в щелях зданий, под крышами домов. Питается семенами и пищевыми отходами.</p>
+                </div>
+            </div>
+            
+            <!-- Карточка 3 -->
+            <div class="bird-card" onclick="openBirdImage(2)">
+                <img src="sneg.jpg" alt="Снегирь" class="bird-image">
+                <div class="bird-info">
+                    <h3 class="bird-name">Обыкновенный снегирь</h3>
+                    <p class="bird-description">Яркая птица с красной грудью у самцов. Чаще встречается зимой. Питается семенами, почками и ягодами.</p>
+                </div>
+            </div>
+            
+            <!-- Карточка 4 -->
+            <div class="bird-card" onclick="openBirdImage(3)">
+                <img src="soroka.jpg" alt="Сорока" class="bird-image">
+                <div class="bird-info">
+                    <h3 class="bird-name">Сорока</h3>
+                    <p class="bird-description">Умная и осторожная птица с контрастным черно-белым оперением. Известна своим характерным стрекотанием.</p>
+                </div>
+            </div>
+            
+            <!-- Карточка 5 -->
+            <div class="bird-card" onclick="openBirdImage(4)">
+                <img src="gul.webp" alt="Голубь" class="bird-image">
+                <div class="bird-info">
+                    <h3 class="bird-name">Сизый голубь</h3>
+                    <p class="bird-description">Типичный обитатель городских улиц и площадей. Питается семенами, зерном и пищевыми отходами.</p>
+                </div>
+            </div>
+            
+            <!-- Карточка 6 -->
+            <div class="bird-card" onclick="openBirdImage(5)">
+                <img src="dyat.jpg" alt="Дятел" class="bird-image">
+                <div class="bird-info">
+                    <h3 class="bird-name">Большой пёстрый дятел</h3>
+                    <p class="bird-description">Обитает в лесопарках Москвы. Известен своим стуком по дереву в поисках насекомых. Имеет яркое черно-белое оперение с красным подхвостьем.</p>
+                </div>
+            </div>
+            
+            <!-- Карточка 7 -->
+            <div class="bird-card" onclick="openBirdImage(6)">
+                <img src="vorona.webp" alt="Ворона" class="bird-image">
+                <div class="bird-info">
+                    <h3 class="bird-name">Серая ворона</h3>
+                    <p class="bird-description">Одна из самых умных птиц. Легко адаптируется к городской среде. Питается разнообразной пищей, включая отходы.</p>
+                </div>
+            </div>
+            
+            <!-- Карточка 8 -->
+            <div class="bird-card" onclick="openBirdImage(7)">
+                <img src="scvor.webp" alt="Скворец" class="bird-image">
+                <div class="bird-info">
+                    <h3 class="bird-name">Обыкновенный скворец</h3>
+                    <p class="bird-description">Перелетная птица, возвращающаяся в Москву весной. Известен сложными песнями и способностью имитировать другие звуки.</p>
+                </div>
+            </div>
+            
+            <!-- Карточка 9 -->
+            <div class="bird-card" onclick="openBirdImage(8)">
+                <img src="zyab.webp" alt="Зяблик" class="bird-image">
+                <div class="bird-info">
+                    <h3 class="bird-name">Зяблик</h3>
+                    <p class="bird-description">Небольшая певчая птица с ярким оперением. Часто встречается в парках и лесопарках. Питается семенами и насекомыми.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="articles-section">
+            <h2 class="section-title">Интересные статьи о птицах Москвы</h2>
+            
+            <div class="articles-grid">
+                <div class="article-card" onclick="openArticle(0)">
+                    <h3 class="article-title">Как птицы адаптировались к жизни в мегаполисе</h3>
+                    <p class="article-excerpt">Узнайте, какие изменения в поведении и образе жизни помогли птицам выжить в условиях большого города.</p>
+                    <a class="read-more">Читать далее →</a>
+                </div>
+                
+                <div class="article-card" onclick="openArticle(1)">
+                    <h3 class="article-title">Сезонные миграции птиц в Москве</h3>
+                    <p class="article-excerpt">Какие птицы улетают на зимовку, а какие остаются в городе? Подробный гид по сезонным перемещениям пернатых.</p>
+                    <a class="read-more">Читать далее →</a>
+                </div>
+                
+                <div class="article-card" onclick="openArticle(2)">
+                    <h3 class="article-title">Где наблюдать за птицами в Москве</h3>
+                    <p class="article-excerpt">Топ-10 лучших мест для бёрдвотчинга в столице - от парков до природных заказников.</p>
+                    <a class="read-more">Читать далее →</a>
+                </div>
+                
+                <div class="article-card" onclick="openArticle(3)">
+                    <h3 class="article-title">Чем кормить птиц зимой</h3>
+                    <p class="article-excerpt">Правила подкормки птиц в холодное время года. Какие продукты полезны, а какие могут навредить пернатым.</p>
+                    <a class="read-more">Читать далее →</a>
+                </div>
+                
+                <div class="article-card" onclick="openArticle(4)">
+                    <h3 class="article-title">Редкие виды птиц в Москве</h3>
+                    <p class="article-excerpt">Какие краснокнижные птицы изредка встречаются на территории Москвы и как их охраняют.</p>
+                    <a class="read-more">Читать далее →</a>
+                </div>
+                
+                <div class="article-card" onclick="openArticle(5)">
+                    <h3 class="article-title">Птичьи голоса: учимся распознавать пение</h3>
+                    <p class="article-excerpt">Как отличить пение соловья от зяблика? Руководство по распознаванию птичьих трелей для начинающих.</p>
+                    <a class="read-more">Читать далее →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для статей -->
+    <div id="articleModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeArticle()">&times;</span>
+            <h2 id="modalTitle" class="modal-title"></h2>
+            <div id="modalBody" class="modal-body"></div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для изображений птиц -->
+    <div id="imageModal" class="modal">
+        <div class="image-modal-content">
+            <span class="close-btn image-close-btn" onclick="closeBirdImage()">&times;</span>
+            <img id="largeBirdImage" class="large-image" src="" alt="">
+            <div id="imageCaption" class="image-caption"></div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 Птицы Москвы | Наблюдайте за природой вместе с нами</p>
+    </footer>
+
+    <script>
+        // Данные для статей
+        const articles = [
+            {
+                title: "Как птицы адаптировались к жизни в мегаполисе",
+                content: `
+                    <p>Москва, как и любой крупный город, представляет собой сложную экосистему, к которой птицам пришлось приспосабливаться. За последние десятилетия орнитологи заметили интересные изменения в поведении городских пернатых.</p>
+                    
+                    <p>Одним из ключевых адаптационных механизмов стало изменение вокальных данных. Птицы, живущие в шумных районах города, поют громче и на более высоких частотах, чтобы их песни были слышны сквозь городской шум.</p>
+                    
+                    <p>Питание - еще одна область адаптации. Многие виды перешли на антропогенные корма: голуби и воробьи научились находить пищу в мусорных контейнерах, а некоторые хищные птицы стали охотиться на голубей и крыс.</p>
+                    
+                    <p>Изменения коснулись и гнездования. Вороны и сороки строят гнезда из проволоки и синтетических материалов, а синицы успешно гнездятся в искусственных гнездовьях.</p>
+                    
+                    <p>Удивительно, но у городских птиц даже изменились биологические ритмы - из-за искусственного освещения они стали активны дольше, чем их лесные сородичи.</p>
+                `
+            },
+            {
+                title: "Сезонные миграции птиц в Москве",
+                content: `
+                    <p>Москва находится на пути миграции многих видов птиц, что делает ее интересным местом для наблюдения за сезонными перемещениями пернатых.</p>
+                    
+                    <p><strong>Весенняя миграция</strong> (март-май): В это время в Москву возвращаются перелетные птицы. Первыми прилетают грачи и скворцы (конец марта), затем зяблики и белые трясогузки (апрель), и позже всех - стрижи и иволги (май).</p>
+                    
+                    <p><strong>Летний период</strong>: Большинство птиц выводят птенцов. В это время в городе можно наблюдать заботливых родителей, кормящих свое потомство.</p>
+                    
+                    <p><strong>Осенняя миграция</strong> (август-ноябрь): Птицы начинают отлетать на юг. Первыми улетают насекомоядные виды (стрижи, ласточки), затем зерноядные. Некоторые птицы, like утки, остаются до замерзания водоемов.</p>
+                    
+                    <p><strong>Зимний период</strong>: В Москве остаются зимующие виды: синицы, воробьи, вороны, сороки, дятлы, а также прилетают зимние гости из северных регионов - снегири, свиристели, чечетки.</p>
+                    
+                    <p>Интересный факт: некоторые птицы, традиционно считавшиеся перелетными, в последние годы все чаще остаются зимовать в Москве благодаря мягким зимам и доступности корма.</p>
+                `
+            },
+            {
+                title: "Где наблюдать за птицами в Москве",
+                content: `
+                    <p>Москва предлагает множество отличных мест для бёрдвотчинга - наблюдения за птицами. Вот топ мест, где можно увидеть разнообразных пернатых:</p>
+                    
+                    <p><strong>1. Лосиный Остров</strong> - крупнейший лесопарк в черте города. Здесь можно встретить дятлов, сов, хищных птиц, а иногда даже лосей.</p>
+                    
+                    <p><strong>2. Битцевский лес</strong> - здесь гнездятся более 70 видов птиц, включая редких для города ястребов-тетеревятников.</p>
+                    
+                    <p><strong>3. Воробьевы горы</strong> - отличное место для наблюдения за перелетными птицами, особенно весной и осенью.</p>
+                    
+                    <p><strong>4. Парк "Царицыно"</strong> - на прудах парка можно наблюдать водоплавающих птиц: уток, лысух, чаек.</p>
+                    
+                    <p><strong>5. Нескучный сад</strong> - здесь удобно наблюдать за городскими птицами: синицами, поползнями, пищухами.</p>
+                    
+                    <p><strong>6. Серебряный бор</strong> - уникальное место, где можно увидеть зимородков и других редких для города птиц.</p>
+                    
+                    <p><strong>7. Ботанический сад МГУ</strong> - разнообразие растений привлекает множество видов птиц.</p>
+                    
+                    <p>Для успешного наблюдения рекомендуется использовать бинокль, одеваться в немаркую одежду и вести себя тихо, чтобы не спугнуть птиц.</p>
+                `
+            },
+            {
+                title: "Чем кормить птиц зимой",
+                content: `
+                    <p>Зимняя подкормка птиц - важная помощь пернатым в холодное время года. Однако важно знать, чем можно и нельзя кормить птиц.</p>
+                    
+                    <p><strong>Рекомендуемые корма:</strong></p>
+                    <ul>
+                        <li>Семена подсолнечника (нежареные и несоленые)</li>
+                        <li>Просо, овес, пшеница</li>
+                        <li>Специальные зерновые смеси для птиц</li>
+                        <li>Ягоды рябины, боярышника</li>
+                        <li>Несоленое сало (для синиц и дятлов)</li>
+                        <li>Измельченные орехи</li>
+                    </ul>
+                    
+                    <p><strong>Чем нельзя кормить птиц:</strong></p>
+                    <ul>
+                        <li>Хлеб (особенно черный) - вызывает брожение в желудке</li>
+                        <li>Соленые продукты - вредны для почек птиц</li>
+                        <li>Жареные семечки и орехи</li>
+                        <li>Испорченные продукты</li>
+                        <li>Пшено (при долгом хранении выделяет токсины)</li>
+                    </ul>
+                    
+                    <p><strong>Правила подкормки:</strong></p>
+                    <ul>
+                        <li>Кормите регулярно в течение всей зимы</li>
+                        <li>Размещайте кормушки в безопасных местах (вдали от окон и дорог)</li>
+                        <li>Очищайте кормушки от старого корма и помета</li>
+                        <li>Не давайте слишком много корма сразу</li>
+                    </ul>
+                    
+                    <p>Помните: подкормка должна помогать птицам пережить зиму, а не делать их полностью зависимыми от человека.</p>
+                `
+            },
+            {
+                title: "Редкие виды птиц в Москве",
+                content: `
+                    <p>Несмотря на урбанизацию, на территории Москвы иногда встречаются редкие и краснокнижные виды птиц.</p>
+                    
+                    <p><strong>1. Обыкновенный зимородок</strong> - небольшая яркая птица, гнездящаяся в норах по берегам рек. В Москве встречается в Серебряном бору и других природных заказниках.</p>
+                    
+                    <p><strong>2. Ушастая сова</strong> - хищная птица с характерными "ушными" пучками перьев. Гнездится в старых гнездах ворон и сорок.</p>
+                    
+                    <p><strong>3. Зеленый дятел</strong> - самый крупный из дятлов Москвы. Отличается оливково-зеленым окрасом. Встречается в старых парках с дуплистыми деревьями.</p>
+                    
+                    <p><strong>4. Коростель</strong> - скрытная птица, обитающая в лугах и зарослях. Известен своим характерным криком, но увидеть его очень сложно.</p>
+                    
+                    <p><strong>5. Обыкновенная пустельга</strong> - небольшой сокол, который иногда гнездится на высотных зданиях в центре города.</p>
+                    
+                    <p><strong>6. Серая неясыть</strong> - сова, которая может гнездиться в парках и даже на городских кладбищах.</p>
+                    
+                    <p>Для охраны редких видов в Москве созданы особо охраняемые природные территории (ООПТ), где ограничена хозяйственная деятельность и создаются условия для гнездования птиц.</p>
+                    
+                    <p>Если вы заметили редкую птицу, сообщите об этом в Департамент природопользования Москвы или в Союз охраны птиц России - это поможет в сохранении видов.</p>
+                `
+            },
+            {
+                title: "Птичьи голоса: учимся распознавать пение",
+                content: `
+                    <p>Умение распознавать птиц по голосам - ценный навык для любого любителя природы. Вот руководство по самым распространенным птичьим трелям Москвы.</p>
+                    
+                    <p><strong>Соловей</strong> - самый известный певец. Его песня - громкие, чистые свисты, щелканье и трели. Поет преимущественно ночью и на рассвете.</p>
+                    
+                    <p><strong>Зяблик</strong> - его песня представляет собой быструю трель, заканчивающуюся "росчерком". Каждая песня длится 2-3 секунды и повторяется много раз.</p>
+                    
+                    <p><strong>Большая синица</strong> - издает разнообразные позывки, самая известная - звонкое "ци-ци-ци" или "пинь-пинь-чжжж".</p>
+                    
+                    <p><strong>Певчий дрозд</strong> - его песня состоит из чистых, мелодичных фраз, каждая из которых повторяется 2-3 раза.</p>
+                    
+                    <p><strong>Обыкновенная овсянка</strong> - поет простую, но мелодичную песню: "зинь-зинь-зинь-зииииц".</p>
+                    
+                    <p><strong>Советы для начинающих:</strong></p>
+                    <ul>
+                        <li>Начните с изучения 3-5 самых распространенных видов</li>
+                        <li>Используйте мобильные приложения для распознавания птичьих голосов</li>
+                        <li>Записывайте услышанные песны на диктофон</li>
+                        <li>Сравнивайте пение разных особей одного вида</li>
+                        <li>Учитесь в разное время суток - утренние и вечерние песни могут отличаться</li>
+                    </ul>
+                    
+                    <p>Помните, что лучшее время для обучения - раннее утро, когда птицы наиболее активны.</p>
+                `
+            }
+        ];
+
+        // Данные для птиц - ДОБАВЛЕНЫ ВСЕ 9 ПТИЦ
+        const birds = [
+            {
+                name: "Большая синица",
+                image: "sen.jpg",
+                description: "Одна из самых узнаваемых птиц Москвы. Обитает в парках, садах и лесопарковых зонах. Питается насекомыми, семенами и ягодами."
+            },
+            {
+                name: "Домовый воробей",
+                image: "vorob.jpg",
+                description: "Самый распространенный вид воробьев в городе. Гнездится в щелях зданий, под крышами домов. Питается семенами и пищевыми отходами."
+            },
+            {
+                name: "Обыкновенный снегирь",
+                image: "sneg.jpg",
+                description: "Яркая птица с красной грудью у самцов. Чаще встречается зимой. Питается семенами, почками и ягодами."
+            },
+            {
+                name: "Сорока",
+                image: "soroka.jpg",
+                description: "Умная и осторожная птица с контрастным черно-белым оперением. Известна своим характерным стрекотанием."
+            },
+            {
+                name: "Сизый голубь",
+                image: "gul.webp",
+                description: "Типичный обитатель городских улиц и площадей. Питается семенами, зерном и пищевыми отходами."
+            },
+            {
+                name: "Большой пёстрый дятел",
+                image: "dyat.jpg",
+                description: "Обитает в лесопарках Москвы. Известен своим стуком по дереву в поисках насекомых. Имеет яркое черно-белое оперение с красным подхвостьем."
+            },
+            {
+                name: "Серая ворона",
+                image: "vorona.jpg",
+                description: "Одна из самых умных птиц. Легко адаптируется к городской среде. Питается разнообразной пищей, включая отходы."
+            },
+            {
+                name: "Обыкновенный скворец",
+                image: "scvor.webp",
+                description: "Перелетная птица, возвращающаяся в Москву весной. Известен сложными песнями и способностью имитировать другие звуки."
+            },
+            {
+                name: "Зяблик",
+                image: "zyab.webp",
+                description: "Небольшая певчая птица с ярким оперением. Часто встречается в парках и лесопарках. Питается семенами и насекомыми."
+            }
+        ];
+
+        // Функции для работы с модальным окном статей
+        function openArticle(index) {
+            document.getElementById('modalTitle').textContent = articles[index].title;
+            document.getElementById('modalBody').innerHTML = articles[index].content;
+            document.getElementById('articleModal').style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Блокируем прокрутку фона
+        }
+
+        function closeArticle() {
+            document.getElementById('articleModal').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Возвращаем прокрутку
+        }
+
+        // Функции для работы с модальным окном изображений
+        function openBirdImage(index) {
+            // Проверяем, существует ли птица с таким индексом
+            if (birds[index]) {
+                document.getElementById('largeBirdImage').src = birds[index].image;
+                document.getElementById('imageCaption').textContent = birds[index].name;
+                document.getElementById('imageModal').style.display = 'block';
+                document.body.style.overflow = 'hidden'; // Блокируем прокрутку фона
+            }
+        }
+
+        function closeBirdImage() {
+            document.getElementById('imageModal').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Возвращаем прокрутку
+        }
+
+        // Закрытие модальных окон при клике вне их
+        window.onclick = function(event) {
+            const articleModal = document.getElementById('articleModal');
+            const imageModal = document.getElementById('imageModal');
+            
+            if (event.target === articleModal) {
+                closeArticle();
+            }
+            if (event.target === imageModal) {
+                closeBirdImage();
+            }
+        }
+
+        // Закрытие модальных окон по клавише Esc
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeArticle();
+                closeBirdImage();
+            }
+        });
+    </script>
+</body>
+</html>
